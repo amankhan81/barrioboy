@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Barrio Boy: Neon Challenge</title>
+    <style>
+        :root {
+            --neon-cyan: #00f3ff;
+            --neon-pink: #ff00ff;
+            --neon-purple: #bc13fe;
+            --neon-green: #39ff14;
+            --bg-dark: #080808;
+            --glass: rgba(255, 255, 255, 0.05);
+        }
+
+        * {
+            box-sizing: border-box;
+            user-select: none;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            color: white;
+            font-family: 'Segoe UI', Roboto, sans-serif;
+            font-size: 20pt;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            overflow: hidden;
+            background-image:
+                radial-gradient(circle at 20% 20%, rgba(188, 19, 254, 0.15) 0%, transparent 40%),
+                radial-gradient(circle at 80% 80%, rgba(0, 243, 255, 0.15) 0%, transparent 40%);
+        }
+
+        #app-container {
+            width: 95vw;
+            height: 90vh;
+            max-width: 1100px;
+            background: rgba(15, 15, 15, 0.95);
+            border: 2px solid var(--neon-cyan);
+            box-shadow: 0 0 30px rgba(0, 243, 255, 0.3), inset 0 0 15px rgba(0, 243, 255, 0.1);
+            border-radius: 24px;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            padding: 40px;
+        }
+
+        .screen {
+            display: none;
+            flex-direction: column;
+            height: 100%;
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        .active { display: flex; }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        h1 {
+            text-align: center;
+            font-size: 42pt;
+            margin-bottom: 30px;
+            text-transform: uppercase;
+            letter-spacing: 5px;
+            color: var(--neon-pink);
+            text-shadow: 0 0 15px var(--neon-pink);
+        }
+
+        /* Intro Screen */
+        #intro-form {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            flex-grow: 1;
+        }
+
+        input[type="text"] {
+            background: var(--glass);
+            border: 2px solid var(--neon-purple);
+            padding: 20px;
+            color: white;
+            font-size: 24pt;
+            border-radius: 12px;
+            width: 80%;
+            margin-bottom: 20px;
+            outline: none;
+            text-align: center;
+            transition: 0.3s;
+        }
+
+        input[type="text"]:focus {
+            box-shadow: 0 0 20px var(--neon-purple);
+            background: rgba(188, 19, 254, 0.1);
+        }
+
+        /* Quiz Elements */
+        #q-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            color: var(--neon-cyan);
+            font-weight: bold;
+        }
+
+        #question-text {
+            margin-bottom: 30px;
+            line-height: 1.4;
+            min-height: 120px;
+        }
+
+        .options-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 15px;
+            flex-grow: 1;
+        }
+
+        .option-btn {
+            background: var(--glass);
+            border: 2px solid #444;
+            padding: 15px 25px;
+            color: #ddd;
+            border-radius: 12px;
+            cursor: pointer;
+            text-align: left;
+            font-size: 18pt;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+        }
+
+        .option-btn:hover {
+            border-color: var(--neon-cyan);
+            background: rgba(0, 243, 255, 0.05);
+            color: white;
+        }
+
+        .option-btn.selected {
+            border-color: var(--neon-green);
+            background: rgba(57, 255, 20, 0.1);
+            color: var(--neon-green);
+            box-shadow: 0 0 15px rgba(57, 255, 20, 0.2);
+        }
+
+        /* Navigation */
+        .controls {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 30px;
+            gap: 20px;
+        }
+
+        .nav-btn {
+            background: transparent;
+            border: 2px solid var(--neon-cyan);
+            color: var(--neon-cyan);
+            padding: 15px 40px;
+            font-size: 20pt;
+            border-radius: 12px;
+            cursor: pointer;
+            text-transform: uppercase;
+            font-weight: bold;
+            transition: 0.3s;
+            min-width: 200px;
+        }
+
+        .nav-btn:hover:not(:disabled) {
+            background: var(--neon-cyan);
+            color: black;
+            box-shadow: 0 0 20px var(--neon-cyan);
+        }
+
+        .nav-btn:disabled {
+            opacity: 0.2;
+            cursor: not-allowed;
+            border-color: #555;
+            color: #555;
+        }
+
+        .start-btn {
+            border-color: var(--neon-pink);
+            color: var(--neon-pink);
+        }
+
+        .start-btn:hover {
+            background: var(--neon-pink);
+            color: white;
+            box-shadow: 0 0 25px var(--neon-pink);
+        }
+
+        /* Results */
+        .result-box {
+            text-align: center;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .score-circle {
+            font-size: 80pt;
+            color: var(--neon-green);
+            text-shadow: 0 0 30px var(--neon-green);
+            margin: 20px 0;
+        }
+
+        .user-name {
+            color: var(--neon-cyan);
+            font-size: 32pt;
+            margin-bottom: 10px;
+        }
+
+        .rank-badge {
+            display: inline-block;
+            padding: 10px 30px;
+            border: 2px solid var(--neon-pink);
+            border-radius: 50px;
+            color: var(--neon-pink);
+            text-transform: uppercase;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+
+<div id="app-container">
+    <!-- SCREEN 1: LOGIN -->
+    <div id="screen-login" class="screen active">
+        <h1>Barrio Boy Challenge</h1>
+        <div id="intro-form">
+            <input type="text" id="first-name" placeholder="First Name" autocomplete="off">
+            <input type="text" id="last-name" placeholder="Last Name" autocomplete="off">
+            <button class="nav-btn start-btn" onclick="initQuiz()">Start Challenge</button>
+        </div>
+    </div>
+
+    <!-- SCREEN 2: QUIZ -->
+    <div id="screen-quiz" class="screen">
+        <div id="q-header">
+            <span id="q-number">Question 1/10</span>
+            <span id="q-points">Score: 0</span>
+        </div>
+        <div id="question-text">Loading question...</div>
+        <div id="options-container" class="options-grid">
+            <!-- Options injected here -->
+        </div>
+        <div class="controls">
+            <button id="prev-btn" class="nav-btn" onclick="move(-1)">Previous</button>
+            <button id="next-btn" class="nav-btn" onclick="move(1)">Next</button>
+        </div>
+    </div>
+
+    <!-- SCREEN 3: RESULTS -->
+    <div id="screen-results" class="screen">
+        <h1>Challenge Complete</h1>
+        <div class="result-box">
+            <div id="rank" class="rank-badge">Honor Graduate</div>
+            <div class="user-name" id="res-name">Ernesto Galarza</div>
+            <div class="score-circle"><span id="res-score">0</span>/10</div>
+            <div id="res-feedback">You conquered the secrets of the English language!</div>
+            <button class="nav-btn" style="margin-top: 40px; align-self: center;" onclick="location.reload()">Reset Matrix</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    const questions = [
+        {
+            id: 1,
+            q: "The sentence 'Almost tiptoeing across the office, I maneuvered myself to keep my mother between me and the gringo lady' adds to the development of the text MAINLY by:",
+            a: ["Showing that Miss Hopley is tall and frightening", "Offering an example of the narrator's quick reflexes", "Reminding the reader that the narrator is young and nervous", "Suggesting to the reader the narrator's fear of authority"],
+            correct: 2
+        },
+        {
+            id: 2,
+            q: "When Miss Hopley stands up, Ernesto says she 'soared.' What does this reveal?",
+            a: ["Miss Hopley dislikes Ernesto", "Ernesto is impressed by Miss Hopley's stature and presence", "Ernesto is terrified and wants to run away", "Miss Hopley gives an impressive and welcoming speech"],
+            correct: 1
+        },
+        {
+            id: 3,
+            q: "In Paragraph 12, Miss Ryan is described as 'crouching' by Ernesto's desk. What information does this MAINLY reveal?",
+            a: ["The narrator is anxious in Miss Ryan's presence", "Miss Ryan thinks the narrator is an exceptional student", "Miss Ryan is more than six feet tall", "The narrator dislikes Miss Ryan's teaching style"],
+            correct: 0
+        },
+        {
+            q: "Which selection BEST identifies the main idea of Paragraph 17 (Lincoln School's culture)?",
+            a: ["The school encouraged each student to embrace their individual identity", "Students were allowed to speak in their native tongue", "There were quite a few field trips to museums", "Different cultures were fascinating to Miss Hopley"],
+            correct: 0
+        },
+        {
+            q: "Which inference about the narrator is BEST supported by the first paragraph?",
+            a: ["The narrator and his mother had to walk a long way", "The narrator has just started noticing U.S. architecture", "The narrator is worried at first due to the school's unfamiliarity", "The narrator is excited by the look of the new yellow building"],
+            correct: 2
+        },
+        {
+            q: "Which sentence from Paragraph 1 MOST strongly supports the idea that the narrator is worried?",
+            a: ["'The two of us walked south on Fifth Street...'", "'Half of the block was occupied by the Lincoln School.'", "'It was a new building, painted yellow...'", "'I noticed other differences, none of them very reassuring.'"],
+            correct: 3
+        },
+        {
+            q: "What is most likely the reason Ernesto tried to tell Miss Ryan how words are said in Spanish?",
+            a: ["He wanted to become a teacher one day", "He prefers Spanish and wanted to show Miss Ryan why", "He wanted to impress her with knowledge she might not have", "Miss Ryan explicitly asked him for a translation"],
+            correct: 1
+        },
+        {
+            q: "Which passage strongly supports the correct answer for why Ernesto interrupted Miss Ryan?",
+            a: ["The description of private lessons in the narrow closet", "The description of her coaching him through phonetic ruts", "The 'discovering together the secrets of the English language' quote", "The 'falling in love with Miss Ryan' quote"],
+            correct: 2
+        },
+        {
+            q: "Match the description: Who is 'blond, radiant' and crouches level with Ernesto?",
+            a: ["Matti", "Miss Hopley", "Miss Ryan", "Manuel"],
+            correct: 2
+        },
+        {
+            q: "Which event occurs FIRST chronologically in the story?",
+            a: ["Ernesto learns to pronounce 'butterfly'", "The narrator maneuvers behind his mother in the office", "Miss Ryan takes the narrator to a seat in front of the class", "The narrator notices the interpreter is 'brown like us'"],
+            correct: 1
+        }
+    ];
+
+    let currentIdx = 0;
+    let userAnswers = new Array(questions.length).fill(null);
+    let firstName = "";
+    let lastName = "";
+
+    function initQuiz() {
+        const f = document.getElementById('first-name').value.trim();
+        const l = document.getElementById('last-name').value.trim();
+        if (!f || !l) {
+            alert("Please enter your full name to begin.");
+            return;
+        }
+        firstName = f;
+        lastName = l;
+        document.getElementById('screen-login').classList.remove('active');
+        document.getElementById('screen-quiz').classList.add('active');
+        renderQuestion();
+    }
+
+    function renderQuestion() {
+        const q = questions[currentIdx];
+        document.getElementById('q-number').innerText = `Question ${currentIdx + 1}/${questions.length}`;
+        document.getElementById('question-text').innerText = q.q;
+       
+        const container = document.getElementById('options-container');
+        container.innerHTML = "";
+       
+        q.a.forEach((text, i) => {
+            const btn = document.createElement('div');
+            btn.className = 'option-btn' + (userAnswers[currentIdx] === i ? ' selected' : '');
+            btn.innerHTML = `<span>${String.fromCharCode(65 + i)}. ${text}</span>`;
+            btn.onclick = () => selectOption(i);
+            container.appendChild(btn);
+        });
+
+        document.getElementById('prev-btn').disabled = currentIdx === 0;
+        document.getElementById('next-btn').innerText = (currentIdx === questions.length - 1) ? "Submit" : "Next";
+    }
+
+    function selectOption(idx) {
+        userAnswers[currentIdx] = idx;
+        renderQuestion();
+    }
+
+    function move(dir) {
+        if (dir === 1 && userAnswers[currentIdx] === null) {
+            alert("Make a selection to proceed!");
+            return;
+        }
+
+        currentIdx += dir;
+
+        if (currentIdx < 0) currentIdx = 0;
+        if (currentIdx >= questions.length) {
+            finish();
+        } else {
+            renderQuestion();
+        }
+    }
+
+    function finish() {
+        let score = 0;
+        userAnswers.forEach((ans, i) => {
+            if (ans === questions[i].correct) score++;
+        });
+
+        document.getElementById('screen-quiz').classList.remove('active');
+        document.getElementById('screen-results').classList.add('active');
+       
+        document.getElementById('res-name').innerText = `${firstName} ${lastName}`;
+        document.getElementById('res-score').innerText = score;
+
+        const feedback = document.getElementById('res-feedback');
+        const rank = document.getElementById('rank');
+
+        if (score === 10) {
+            rank.innerText = "Master Linguist";
+            feedback.innerText = "Absolute perfection! You've mastered the journey of Ernesto Galarza.";
+        } else if (score >= 7) {
+            rank.innerText = "Honor Graduate";
+            feedback.innerText = "Excellent comprehension! You really understood the characters and themes.";
+        } else if (score >= 5) {
+            rank.innerText = "Barrio Resident";
+            feedback.innerText = "Good effort. You've got the basics down, but a re-read might help the details.";
+        } else {
+            rank.innerText = "New Student";
+            feedback.innerText = "Keep practicing! Like Ernesto with 'butterfly', you'll conquer it soon.";
+        }
+    }
+
+    // Handle keyboard
+    window.onkeydown = (e) => {
+        if (document.getElementById('screen-quiz').classList.contains('active')) {
+            if (e.key === "ArrowRight" || e.key === "Enter") move(1);
+            if (e.key === "ArrowLeft") move(-1);
+        }
+    };
+</script>
+</body>
+</html>
